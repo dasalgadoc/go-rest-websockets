@@ -2,28 +2,41 @@ package application
 
 import (
 	"context"
-	"dasalgadoc.com/rest-websockets/api/domain"
+	appDomain "dasalgadoc.com/rest-websockets/api/domain"
 	"dasalgadoc.com/rest-websockets/api/infrastructure"
+	"dasalgadoc.com/rest-websockets/application"
+	"dasalgadoc.com/rest-websockets/domain"
+	"dasalgadoc.com/rest-websockets/infrastructure/repository"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
 )
 
-type Application struct {
-	Config domain.Config
-	Broker infrastructure.Broker
-}
+type (
+	Application struct {
+		Config      appDomain.Config
+		Broker      infrastructure.Broker
+		UserCreator application.UserCreator
+	}
+
+	applicationRepositories struct {
+		userRepository domain.UserRepository
+	}
+)
 
 func BuildApplication() *Application {
 	appConfig := getConfiguration()
 
+	repositories := buildRepositories(appConfig)
+
 	return &Application{
-		Config: appConfig,
-		Broker: buildBroker(appConfig),
+		Config:      appConfig,
+		Broker:      buildBroker(appConfig),
+		UserCreator: application.NewUserCreator(repositories.userRepository),
 	}
 }
 
-func getConfiguration() domain.Config {
+func getConfiguration() appDomain.Config {
 	// load environment variables
 	err := godotenv.Load(".env")
 
@@ -35,18 +48,32 @@ func getConfiguration() domain.Config {
 	jwtSecret := os.Getenv("JWT_SECRET")
 	databaseUrl := os.Getenv("DATABASE_URL")
 
-	return domain.Config{
+	return appDomain.Config{
 		Port:      port,
 		JWTSecret: jwtSecret,
 		Database:  databaseUrl,
 	}
 }
 
-func buildBroker(config domain.Config) infrastructure.Broker {
+func buildBroker(config appDomain.Config) infrastructure.Broker {
 	s, err := infrastructure.NewBroker(context.Background(), &config)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalln(err.Error())
 	}
 
 	return *s
+}
+
+func buildRepositories(config appDomain.Config) *applicationRepositories {
+	// If we have more than one implementation on UserRepository a builder is in order (with .env)
+	users, err := repository.NewPostgresUserRepository(config.Database)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+
+	domain.SetRepository(users)
+
+	return &applicationRepositories{
+		userRepository: users,
+	}
 }
