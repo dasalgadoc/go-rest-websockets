@@ -30,7 +30,7 @@ func (p *PostgresUserRepository) Insert(ctx context.Context, user domain.User) e
 
 func (p *PostgresUserRepository) GetUserById(ctx context.Context, id domain.UserId) (domain.User, error) {
 	response, err := p.db.QueryContext(ctx,
-		"SELECT id email FROM user WHERE id = $1", id)
+		"SELECT id, email FROM users WHERE id = $1", id)
 	defer func() {
 		err = response.Close()
 		if err != nil {
@@ -42,6 +42,31 @@ func (p *PostgresUserRepository) GetUserById(ctx context.Context, id domain.User
 
 	for response.Next() {
 		if err = response.Scan(&user.Id, &user.Email); err == nil {
+			return user, nil
+		}
+	}
+
+	if err = response.Err(); err != nil {
+		return domain.User{}, err
+	}
+
+	return user, nil
+}
+
+func (p *PostgresUserRepository) GetUserByEmail(ctx context.Context, email domain.UserEmail) (domain.User, error) {
+	response, err := p.db.QueryContext(ctx,
+		"SELECT id, email, password FROM users WHERE email = $1", email)
+	defer func() {
+		err = response.Close()
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}()
+
+	var user = domain.User{}
+
+	for response.Next() {
+		if err = response.Scan(&user.Id, &user.Email, &user.Password); err == nil {
 			return user, nil
 		}
 	}

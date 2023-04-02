@@ -6,6 +6,7 @@ import (
 	"dasalgadoc.com/rest-websockets/domain"
 	"encoding/json"
 	"github.com/segmentio/ksuid"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
 
@@ -24,15 +25,23 @@ func SignUpHandler(s appDomain.Server) http.HandlerFunc {
 			return
 		}
 
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		id, err := ksuid.NewRandom()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		userCreator := application.NewUserCreator(domain.UserRepositoryImplementation)
-		err = userCreator.Create(r.Context(), id.String(), request.Email, request.Password)
+		err = userCreator.Create(r.Context(), id.String(), request.Email, string(hashedPassword))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		request.Id = id.String()

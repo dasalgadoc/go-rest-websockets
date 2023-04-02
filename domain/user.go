@@ -17,3 +17,7 @@ func NewUserFromPrimitives(id, email, password string) User {
 		Password: UserPassword(password),
 	}
 }
+
+func (u *User) IsUserEmpty() bool {
+	return u.Email == "" || u.Password == ""
+}
