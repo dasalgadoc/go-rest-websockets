@@ -2,7 +2,7 @@
 Project to explore rest and websockets
 
 Keywords:
-JWT, postgres, API, Environment variables, UUID, Middlewares
+[JWT](./resources/notes/JWTNOTES.md), postgres, API, Environment variables, UUID, Middlewares [Specification](./resources/notes/SPECIFICATION_NOTES.md)
 
 Without docker compose
 Build Image
