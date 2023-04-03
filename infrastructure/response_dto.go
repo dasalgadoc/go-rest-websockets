@@ -1,6 +1,6 @@
-package domain
+package infrastructure
 
-type Response struct {
+type ResponseDto struct {
 	Message string `json:"message"`
 	Status  bool   `json:"status"`
 }

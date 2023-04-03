@@ -15,6 +15,6 @@ func NewUserLogin(r domain.UserRepository) UserLogin {
 	}
 }
 
-func (ul *UserLogin) Do(ctx context.Context, email string) (domain.User, error) {
+func (ul *UserLogin) Invoke(ctx context.Context, email string) (domain.User, error) {
 	return ul.userRepository.GetUserByEmail(ctx, domain.UserEmail(email))
 }

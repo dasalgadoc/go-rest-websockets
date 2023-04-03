@@ -38,7 +38,7 @@ func SignUpHandler(s appDomain.Server) http.HandlerFunc {
 		}
 
 		userCreator := application.NewUserCreator(domain.UserRepositoryImplementation)
-		err = userCreator.Create(r.Context(), id.String(), request.Email, string(hashedPassword))
+		err = userCreator.Invoke(r.Context(), id.String(), request.Email, string(hashedPassword))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

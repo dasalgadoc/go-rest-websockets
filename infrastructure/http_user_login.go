@@ -30,7 +30,7 @@ func LoginHandler(s appDomain.Server) http.HandlerFunc {
 		}
 
 		userLogger := application.NewUserLogin(domain.UserRepositoryImplementation)
-		user, err := userLogger.Do(r.Context(), request.Email)
+		user, err := userLogger.Invoke(r.Context(), request.Email)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

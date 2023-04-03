@@ -17,7 +17,7 @@ func MeHandler(s appDomain.Server) http.HandlerFunc {
 		}
 
 		userGetter := application.NewUserGetter(domain.UserRepositoryImplementation)
-		user, err := userGetter.Do(r.Context(), claims.UserId)
+		user, err := userGetter.Invoke(r.Context(), claims.UserId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

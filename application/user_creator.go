@@ -15,7 +15,7 @@ func NewUserCreator(r domain.UserRepository) UserCreator {
 	}
 }
 
-func (uc *UserCreator) Create(ctx context.Context, id, email, password string) error {
+func (uc *UserCreator) Invoke(ctx context.Context, id, email, password string) error {
 	var user = domain.NewUserFromPrimitives(id, email, password)
 	return uc.userRepository.Insert(ctx, user)
 }

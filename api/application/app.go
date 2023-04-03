@@ -21,6 +21,7 @@ type (
 
 	applicationRepositories struct {
 		userRepository domain.UserRepository
+		postRepository domain.PostRepository
 	}
 )
 
@@ -70,10 +71,16 @@ func buildRepositories(config appDomain.Config) *applicationRepositories {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
+	domain.SetUserRepository(users)
 
-	domain.SetRepository(users)
+	posts, err := repository.NewPostgresPostRepository(config.Database)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	domain.SetPostRepository(posts)
 
 	return &applicationRepositories{
 		userRepository: users,
+		postRepository: posts,
 	}
 }

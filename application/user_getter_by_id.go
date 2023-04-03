@@ -15,6 +15,6 @@ func NewUserGetter(r domain.UserRepository) UserGetterById {
 	}
 }
 
-func (ug *UserGetterById) Do(ctx context.Context, id string) (domain.User, error) {
+func (ug *UserGetterById) Invoke(ctx context.Context, id string) (domain.User, error) {
 	return ug.userRepository.GetUserById(ctx, domain.UserId(id))
 }
