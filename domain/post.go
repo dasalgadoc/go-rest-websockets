@@ -2,6 +2,8 @@ package domain
 
 import "time"
 
+const DateFormat = time.RFC3339
+
 type PostId string
 type PostContent string
 type PostDateCreation time.Time
