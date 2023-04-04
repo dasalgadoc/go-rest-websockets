@@ -2,6 +2,15 @@ version: "3.8"
 
 services:
   postgres:
-    build: .
+    build: ./resources/db
     ports:
       - "54321:5432"
+
+  app:
+    build: .
+    ports:
+      - 8085:8081
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+    depends_on:
+      - postgres
