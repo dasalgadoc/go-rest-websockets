@@ -11,16 +11,19 @@ import (
 type Broker struct {
 	Config *domain.Config
 	Router *mux.Router
+	hub    *domain.WebsocketHub
 }
 
 func NewBroker(ctx context.Context,
-	config *domain.Config) (*Broker, error) {
+	config *domain.Config,
+	hub *domain.WebsocketHub) (*Broker, error) {
 	if err := config.ConfigErrors(); err != nil {
 		return nil, err
 	}
 
 	broker := Broker{
 		Config: config,
+		hub:    hub,
 	}
 
 	return &broker, nil
@@ -28,6 +31,10 @@ func NewBroker(ctx context.Context,
 
 func (b Broker) GetConfig() *domain.Config {
 	return b.Config
+}
+
+func (b *Broker) GetHub() *domain.WebsocketHub {
+	return b.hub
 }
 
 func (b *Broker) Start(binder func(s domain.Server, r *mux.Router)) {

@@ -21,4 +21,6 @@ func BindRoutes(s domain.Server, r *mux.Router) {
 	r.HandleFunc("/post/{id}", infrastructure.PostFinderHandler(s)).Methods(http.MethodGet)
 	r.HandleFunc("/post/{id}", infrastructure.PostUpdaterHandler(s)).Methods(http.MethodPut)
 	r.HandleFunc("/post/{id}", infrastructure.PostDeleterHandler(s)).Methods(http.MethodDelete)
+
+	r.HandleFunc("/ws", s.GetHub().RegistryClient)
 }

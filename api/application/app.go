@@ -4,7 +4,6 @@ import (
 	"context"
 	appDomain "dasalgadoc.com/rest-websockets/api/domain"
 	"dasalgadoc.com/rest-websockets/api/infrastructure"
-	"dasalgadoc.com/rest-websockets/application"
 	"dasalgadoc.com/rest-websockets/domain"
 	"dasalgadoc.com/rest-websockets/infrastructure/repository"
 	"github.com/joho/godotenv"
@@ -14,9 +13,8 @@ import (
 
 type (
 	Application struct {
-		Config      appDomain.Config
-		Broker      infrastructure.Broker
-		UserCreator application.UserCreator
+		Config appDomain.Config
+		Broker infrastructure.Broker
 	}
 
 	applicationRepositories struct {
@@ -28,12 +26,13 @@ type (
 func BuildApplication() *Application {
 	appConfig := getConfiguration()
 
-	repositories := buildRepositories(appConfig)
+	buildRepositories(appConfig)
+
+	hub := buildWebSocket()
 
 	return &Application{
-		Config:      appConfig,
-		Broker:      buildBroker(appConfig),
-		UserCreator: application.NewUserCreator(repositories.userRepository),
+		Config: appConfig,
+		Broker: buildBroker(appConfig, hub),
 	}
 }
 
@@ -56,8 +55,8 @@ func getConfiguration() appDomain.Config {
 	}
 }
 
-func buildBroker(config appDomain.Config) infrastructure.Broker {
-	s, err := infrastructure.NewBroker(context.Background(), &config)
+func buildBroker(config appDomain.Config, hub *appDomain.WebsocketHub) infrastructure.Broker {
+	s, err := infrastructure.NewBroker(context.Background(), &config, hub)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -83,4 +82,10 @@ func buildRepositories(config appDomain.Config) *applicationRepositories {
 		userRepository: users,
 		postRepository: posts,
 	}
+}
+
+func buildWebSocket() *appDomain.WebsocketHub {
+	hub := appDomain.NewHub()
+	go hub.Run()
+	return hub
 }

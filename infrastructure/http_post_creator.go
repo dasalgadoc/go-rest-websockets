@@ -40,7 +40,7 @@ func PostSaverHandler(s appDomain.Server) http.HandlerFunc {
 			return
 		}
 
-		postCreator := application.NewPostCreator(domain.PostRepositoryImplementation)
+		postCreator := application.NewPostCreator(domain.PostRepositoryImplementation, s.GetHub())
 		err = postCreator.Invoke(r.Context(), id.String(), request.PostContent, claims.UserId, time.Now())
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
