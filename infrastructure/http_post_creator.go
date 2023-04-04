@@ -3,7 +3,6 @@ package infrastructure
 import (
 	appDomain "dasalgadoc.com/rest-websockets/api/domain"
 	"dasalgadoc.com/rest-websockets/application"
-	"dasalgadoc.com/rest-websockets/domain"
 	"encoding/json"
 	"github.com/segmentio/ksuid"
 	"net/http"
@@ -40,7 +39,7 @@ func PostSaverHandler(s appDomain.Server) http.HandlerFunc {
 			return
 		}
 
-		postCreator := application.NewPostCreator(domain.PostRepositoryImplementation, s.GetHub())
+		postCreator := application.NewPostCreator(s.GetPostRepository(), s.GetHub())
 		err = postCreator.Invoke(r.Context(), id.String(), request.PostContent, claims.UserId, time.Now())
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

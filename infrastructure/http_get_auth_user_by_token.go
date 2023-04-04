@@ -3,7 +3,6 @@ package infrastructure
 import (
 	appDomain "dasalgadoc.com/rest-websockets/api/domain"
 	"dasalgadoc.com/rest-websockets/application"
-	"dasalgadoc.com/rest-websockets/domain"
 	"encoding/json"
 	"net/http"
 )
@@ -16,7 +15,7 @@ func MeHandler(s appDomain.Server) http.HandlerFunc {
 			return
 		}
 
-		userGetter := application.NewUserGetter(domain.UserRepositoryImplementation)
+		userGetter := application.NewUserGetter(s.GetUserRepository())
 		user, err := userGetter.Invoke(r.Context(), claims.UserId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

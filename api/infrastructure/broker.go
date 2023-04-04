@@ -2,42 +2,57 @@ package infrastructure
 
 import (
 	"context"
-	"dasalgadoc.com/rest-websockets/api/domain"
+	appDomain "dasalgadoc.com/rest-websockets/api/domain"
+	"dasalgadoc.com/rest-websockets/domain"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
 
 type Broker struct {
-	Config *domain.Config
-	Router *mux.Router
-	hub    *domain.WebsocketHub
+	Config         *appDomain.Config
+	Router         *mux.Router
+	hub            *appDomain.WebsocketHub
+	userRepository domain.UserRepository
+	postRepository domain.PostRepository
 }
 
 func NewBroker(ctx context.Context,
-	config *domain.Config,
-	hub *domain.WebsocketHub) (*Broker, error) {
+	config *appDomain.Config,
+	hub *appDomain.WebsocketHub,
+	u domain.UserRepository,
+	p domain.PostRepository) (*Broker, error) {
 	if err := config.ConfigErrors(); err != nil {
 		return nil, err
 	}
 
 	broker := Broker{
-		Config: config,
-		hub:    hub,
+		Config:         config,
+		hub:            hub,
+		userRepository: u,
+		postRepository: p,
 	}
 
 	return &broker, nil
 }
 
-func (b Broker) GetConfig() *domain.Config {
+func (b Broker) GetConfig() *appDomain.Config {
 	return b.Config
 }
 
-func (b *Broker) GetHub() *domain.WebsocketHub {
+func (b *Broker) GetHub() *appDomain.WebsocketHub {
 	return b.hub
 }
 
-func (b *Broker) Start(binder func(s domain.Server, r *mux.Router)) {
+func (b *Broker) GetUserRepository() domain.UserRepository {
+	return b.userRepository
+}
+
+func (b *Broker) GetPostRepository() domain.PostRepository {
+	return b.postRepository
+}
+
+func (b *Broker) Start(binder func(s appDomain.Server, r *mux.Router)) {
 	b.Router = mux.NewRouter()
 
 	binder(b, b.Router)

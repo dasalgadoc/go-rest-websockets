@@ -3,7 +3,6 @@ package infrastructure
 import (
 	appDomain "dasalgadoc.com/rest-websockets/api/domain"
 	"dasalgadoc.com/rest-websockets/application"
-	"dasalgadoc.com/rest-websockets/domain"
 	"encoding/json"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
@@ -29,7 +28,7 @@ func LoginHandler(s appDomain.Server) http.HandlerFunc {
 			return
 		}
 
-		userLogger := application.NewUserLogin(domain.UserRepositoryImplementation)
+		userLogger := application.NewUserLogin(s.GetUserRepository())
 		user, err := userLogger.Invoke(r.Context(), request.Email)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

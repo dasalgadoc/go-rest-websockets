@@ -21,7 +21,7 @@ func PostFinderHandler(s appDomain.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 
-		postGetter := application.NewPostGetter(domain.PostRepositoryImplementation)
+		postGetter := application.NewPostGetter(s.GetPostRepository())
 		post, err := postGetter.Invoke(r.Context(), params["id"])
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

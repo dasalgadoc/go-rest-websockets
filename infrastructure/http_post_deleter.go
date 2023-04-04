@@ -3,7 +3,6 @@ package infrastructure
 import (
 	appDomain "dasalgadoc.com/rest-websockets/api/domain"
 	"dasalgadoc.com/rest-websockets/application"
-	"dasalgadoc.com/rest-websockets/domain"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -19,7 +18,7 @@ func PostDeleterHandler(s appDomain.Server) http.HandlerFunc {
 
 		params := mux.Vars(r)
 
-		postDeleter := application.NewPostDeleter(domain.PostRepositoryImplementation)
+		postDeleter := application.NewPostDeleter(s.GetPostRepository())
 		err = postDeleter.Invoke(r.Context(), params["id"], claims.UserId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

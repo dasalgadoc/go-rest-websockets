@@ -3,7 +3,6 @@ package infrastructure
 import (
 	appDomain "dasalgadoc.com/rest-websockets/api/domain"
 	"dasalgadoc.com/rest-websockets/application"
-	"dasalgadoc.com/rest-websockets/domain"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -26,7 +25,7 @@ func PostUpdaterHandler(s appDomain.Server) http.HandlerFunc {
 			return
 		}
 
-		postUpdater := application.NewPostUpdater(domain.PostRepositoryImplementation)
+		postUpdater := application.NewPostUpdater(s.GetPostRepository())
 		err = postUpdater.Invoke(r.Context(), params["id"], request.PostContent, claims.UserId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

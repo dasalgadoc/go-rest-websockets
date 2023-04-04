@@ -3,7 +3,6 @@ package infrastructure
 import (
 	appDomain "dasalgadoc.com/rest-websockets/api/domain"
 	"dasalgadoc.com/rest-websockets/application"
-	"dasalgadoc.com/rest-websockets/domain"
 	"encoding/json"
 	"github.com/segmentio/ksuid"
 	"golang.org/x/crypto/bcrypt"
@@ -37,7 +36,7 @@ func SignUpHandler(s appDomain.Server) http.HandlerFunc {
 			return
 		}
 
-		userCreator := application.NewUserCreator(domain.UserRepositoryImplementation)
+		userCreator := application.NewUserCreator(s.GetUserRepository())
 		err = userCreator.Invoke(r.Context(), id.String(), request.Email, string(hashedPassword))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -26,13 +26,13 @@ type (
 func BuildApplication() *Application {
 	appConfig := getConfiguration()
 
-	buildRepositories(appConfig)
+	repositories := buildRepositories(appConfig)
 
 	hub := buildWebSocket()
 
 	return &Application{
 		Config: appConfig,
-		Broker: buildBroker(appConfig, hub),
+		Broker: buildBroker(appConfig, hub, repositories),
 	}
 }
 
@@ -55,8 +55,8 @@ func getConfiguration() appDomain.Config {
 	}
 }
 
-func buildBroker(config appDomain.Config, hub *appDomain.WebsocketHub) infrastructure.Broker {
-	s, err := infrastructure.NewBroker(context.Background(), &config, hub)
+func buildBroker(config appDomain.Config, hub *appDomain.WebsocketHub, repositories applicationRepositories) infrastructure.Broker {
+	s, err := infrastructure.NewBroker(context.Background(), &config, hub, repositories.userRepository, repositories.postRepository)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -64,21 +64,19 @@ func buildBroker(config appDomain.Config, hub *appDomain.WebsocketHub) infrastru
 	return *s
 }
 
-func buildRepositories(config appDomain.Config) *applicationRepositories {
+func buildRepositories(config appDomain.Config) applicationRepositories {
 	// If we have more than one implementation on UserRepository a builder is in order (with .env)
 	users, err := repository.NewPostgresUserRepository(config.Database)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	domain.SetUserRepository(users)
 
 	posts, err := repository.NewPostgresPostRepository(config.Database)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	domain.SetPostRepository(posts)
 
-	return &applicationRepositories{
+	return applicationRepositories{
 		userRepository: users,
 		postRepository: posts,
 	}
